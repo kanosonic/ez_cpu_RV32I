@@ -64,15 +64,25 @@ module reg_file (
         end
     end
 
-    initial begin
-        #500
-        for(k = 0; k < 16; k = k + 1) begin
-            #10
-            $display($time, "ns");
-            for(j = 0; j < 32; j = j + 1) begin
-                $display("reg[%d] = %h", j, reg_Data[j]);
+    //initial begin
+    //    #14900
+    //    for(k = 0; k < 16; k = k + 1) begin
+    //        #10
+    //        $display($time, "ns");
+    //        for(j = 0; j < 32; j = j + 1) begin
+    //            $display("reg[%d] = %h", j, reg_Data[j]);
                 
+    //        end
+    //    end
+    //end
+    reg [31:0] reg_Data_r [31:0];
+    always @(posedge clk) begin
+        for(k = 0; k < 32; k = k + 1) begin
+            if(reg_Data[k] != reg_Data_r[k]) begin
+                $display($time, "ns, reg[%d] = %h", k, reg_Data[k]);
             end
+            reg_Data_r[k] = reg_Data[k];
         end
+        
     end
 endmodule//reg_file

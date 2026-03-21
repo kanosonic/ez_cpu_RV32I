@@ -27,7 +27,7 @@ module id_ex(
 	input [4:0]  id_Rs1,
 	input [4:0]  id_Rs2,
 	input [4:0]  id_Rd,
-	//input [31:0] id_PC,
+	input [31:0] id_PC,
 	input [31:0] id_PC4,
 	input [31:0] id_PCImm,
 
@@ -50,7 +50,7 @@ module id_ex(
 	output reg [4:0] ex_Rs1,
 	output reg [4:0] ex_Rs2,
 	output reg [4:0] ex_Rd,
-	//output reg [31:0] ex_PC,
+	output reg [31:0] ex_PC,
 	output reg [31:0] ex_PCImm,
 	output reg [31:0] ex_PC4
 	
@@ -73,7 +73,7 @@ module id_ex(
 			ex_Rs1		<=	'd0;
 			ex_Rs2		<=	'd0;
 			ex_Rd		<=	'd0;
-			//ex_PC		<=	'd0;
+			ex_PC		<=	'd0;
 			ex_PCImm 	<=	'd0;
 			ex_PC4		<=	'd0;												
 		end else begin
@@ -92,7 +92,7 @@ module id_ex(
 			ex_Rs1		<=	id_Rs1		;
 			ex_Rs2		<=	id_Rs2		;
 			ex_Rd		<=	id_Rd		;
-			//ex_PC		<=	id_PC		;
+			ex_PC		<=	id_PC		;
 			ex_PCImm 	<=	id_PCImm	;
 			ex_PC4		<=	id_PC4		;
 

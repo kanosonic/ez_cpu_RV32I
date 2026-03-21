@@ -2,10 +2,12 @@ module hazard_detector(
 
 	input ex_JALR,	
 	input ex_Branch_taken,	
+	input ex_MemRead,
+	input id_JAL,
 	input [4:0] id_Rs1,
 	input [4:0] id_Rs2,
 	input [4:0] ex_Rd,
-	input ex_MemRead,	
+		
 
 	output reg PCWrite,	//0 for stalling
 
@@ -56,10 +58,17 @@ module hazard_detector(
 			end
 			
 			default: begin
-				PCWrite     = 1'b1;
-				if_id_Write = 1'b1;
-				if_id_Flush = 1'b0;
-				id_ex_Flush = 1'b0;
+				if(id_JAL)begin
+					PCWrite     = 1'b1;
+					if_id_Write = 1'b0;
+					if_id_Flush = 1'b1;
+					id_ex_Flush = 1'b0;	
+				end else begin
+					PCWrite     = 1'b1;
+					if_id_Write = 1'b1;
+					if_id_Flush = 1'b0;
+					id_ex_Flush = 1'b0;					
+				end
 			end
 		endcase
 	end

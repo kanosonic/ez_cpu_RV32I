@@ -141,10 +141,10 @@ module cpu(
               .rstn(rstn),
               .flush(if_id_Flush),
               .if_id_Write(if_id_Write),
-            //  .if_PC(pc),
+              .if_PC(pc),
               .if_PC4(pc4),
               .if_Inst(inst),
-            //  .id_PC(id_PC),
+              .id_PC(id_PC),
               .id_PC4(id_PC4),
               .id_Inst(id_Inst)
           );
@@ -177,7 +177,7 @@ module cpu(
             );
 
     adder32 u_adder_id_pcimm(
-                .A(id_PC4),
+                .A(id_PC),
                 .B(id_Imm),
                 .Result(id_PCImm)
             );
@@ -217,7 +217,7 @@ module cpu(
               .id_Rs1(id_Rs1),
               .id_Rs2(id_Rs2),
               .id_Rd(id_Rd),
-            //  .id_PC(id_PC),
+              .id_PC(id_PC),
               .id_PC4(id_PC4),
 			  .id_PCImm(id_PCImm),
 
@@ -237,8 +237,8 @@ module cpu(
               .ex_Rs1(ex_Rs1),
               .ex_Rs2(ex_Rs2),
               .ex_Rd(ex_Rd),
-            //  .ex_PC(ex_PC),
-			.ex_PCImm(ex_PCImm),
+              .ex_PC(ex_PC),
+			  .ex_PCImm(ex_PCImm),
               .ex_PC4(ex_PC4)
           );
 
@@ -266,7 +266,7 @@ module cpu(
 
 	assign ex_Branch_taken = ex_Branch && ex_Branch_cond;
 
-    wire [31:0] alu_in1 = ex_ALUSrcA ? ex_PC4 : forwardA_data;
+    wire [31:0] alu_in1 = ex_ALUSrcA ? ex_PC : forwardA_data;
     wire [31:0] alu_in2 = ex_ALUSrcB ? ex_Imm : forwardB_data;
 
     alu u_alu(
@@ -355,10 +355,12 @@ module cpu(
     hazard_detector u_hazard_detector(
                         .ex_JALR(ex_JALR),
                         .ex_Branch_taken(ex_Branch_taken),
+                        .ex_MemRead(ex_MemRead_flag),
+                        .id_JAL(id_JAL),
                         .id_Rs1(id_Rs1),
                         .id_Rs2(id_Rs2),
                         .ex_Rd(ex_Rd),
-                        .ex_MemRead(ex_MemRead_flag),
+                        
 
                         .PCWrite(PCWrite),
                         .if_id_Write(if_id_Write),

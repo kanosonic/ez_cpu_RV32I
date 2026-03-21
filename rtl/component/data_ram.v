@@ -13,7 +13,7 @@ module data_ram #(
         output reg [BIT_WIDTH - 1:0] r_Data
 
     );
-    reg [7:0] rom_Data [1023:0];	//1KB
+    reg [7:0] rom_Data [0:4096];	//4KB
 
     //Write
     integer i;
