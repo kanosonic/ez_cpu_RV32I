@@ -21,7 +21,7 @@ ASM_DIR = sim/asm
 TEST_HEX := $(ASM_DIR)/build/test.dat
 
 # Rule to compile Verilog sources into simulation binary
-#$(BIN): $(SRC) $(TEST_SRC) | $(BUILD_DIR)
+$(BIN): $(SRC) $(TEST_SRC) | $(BUILD_DIR)
 ##	iverilog -I rtl -I rtl/component -o $(BIN) -s $(TOP) $(SRC) $(TEST_SRC)
 
 $(BUILD_DIR):
