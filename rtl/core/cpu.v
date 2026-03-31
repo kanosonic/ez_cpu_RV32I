@@ -244,6 +244,7 @@ module cpu(
 
     // ---------- EX stage logic ----------
     wire ex_MemRead_flag = (ex_MemRead != `MEMREAD_NOP);
+    wire [31:0] mem_wdata;
 
     forward_unit u_forward_unit(
                      .ex_Rs1(ex_Rs1),
@@ -256,11 +257,16 @@ module cpu(
                      .ForwardB(forwardB)
                  );
 
-    assign forwardA_data = (forwardA == `FORWARD_A_EX) ? mem_Result :
+    assign mem_wdata = (mem_WTR == `WTR_ALU) ? mem_Result :
+                       (mem_WTR == `WTR_PC4) ? mem_PC4 :
+                       (mem_WTR == `WTR_IMM) ? mem_Imm :
+                       32'b0;   
+
+    assign forwardA_data = (forwardA == `FORWARD_A_EX) ? mem_wdata :
            (forwardA == `FORWARD_A_MEM) ? wb_wdata :
            ex_Data1;
 
-    assign forwardB_data = (forwardB == `FORWARD_B_EX) ? mem_Result :
+    assign forwardB_data = (forwardB == `FORWARD_B_EX) ? mem_wdata :
            (forwardB == `FORWARD_B_MEM) ? wb_wdata :
            ex_Data2;
 
