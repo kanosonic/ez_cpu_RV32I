@@ -20,8 +20,6 @@ module reg_file (
             for (i = 0; i < 32; i = i + 1) begin
                 reg_Data[i] <= 32'd0;
             end
-            r_Data1 <= 32'd0;
-            r_Data2 <= 32'd0;
         end
         else begin
             if (RegWrite && Rd != 'd0) begin
@@ -34,7 +32,7 @@ module reg_file (
 
     //Read (After writen)
     always @(*) begin
-        if(Rs1 == 5'd0)begin
+        if(Rs1 == 5'd0 || (!rst_n))begin
             r_Data1 = 32'd0;
         end else begin
             if(RegWrite && (Rd != 5'd0) && (Rs1 == Rd))begin
@@ -46,7 +44,7 @@ module reg_file (
     end
 
     always @(*) begin
-        if(Rs2 == 5'd0)begin
+        if(Rs2 == 5'd0 || (!rst_n))begin
             r_Data2 = 32'd0;
         end else begin
             if(RegWrite && (Rd != 5'd0) && (Rs2 == Rd))begin
