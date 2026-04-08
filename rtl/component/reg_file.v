@@ -37,7 +37,7 @@ module reg_file (
         if(Rs1 == 5'd0)begin
             r_Data1 = 32'd0;
         end else begin
-            if(Rs1 == Rd)begin
+            if(RegWrite && (Rd != 5'd0) && (Rs1 == Rd))begin
                 r_Data1 = w_Data;
             end else begin
                 r_Data1 = reg_Data[Rs1];
@@ -49,7 +49,7 @@ module reg_file (
         if(Rs2 == 5'd0)begin
             r_Data2 = 32'd0;
         end else begin
-            if(Rs2 == Rd)begin
+            if(RegWrite && (Rd != 5'd0) && (Rs2 == Rd))begin
                 r_Data2 = w_Data;
             end else begin
                 r_Data2 = reg_Data[Rs2];

@@ -2,11 +2,12 @@
 SRC_DIR := ./src
 BUILD_DIR := ./build
 OBJ_DIR := $(BUILD_DIR)
+TOOLCHAIN ?=
 
 # Compilation flags
-AS := riscv32-unknown-elf-as
-DUMP := riscv32-unknown-elf-objdump
-COPY := riscv32-unknown-elf-objcopy
+AS := $(if $(TOOLCHAIN),$(TOOLCHAIN)/bin/,)riscv32-unknown-elf-as
+DUMP := $(if $(TOOLCHAIN),$(TOOLCHAIN)/bin/,)riscv32-unknown-elf-objdump
+COPY := $(if $(TOOLCHAIN),$(TOOLCHAIN)/bin/,)riscv32-unknown-elf-objcopy
 CFLAGS := -march=rv32i -mabi=ilp32
 DUMPFLAGS := -D
 VCOPYFLAGS := -O verilog

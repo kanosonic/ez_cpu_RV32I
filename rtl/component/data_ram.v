@@ -19,7 +19,7 @@ module data_ram #(
     integer i;
     always @(posedge clk) begin
         if(!rstn) begin
-            for(i = 0; i < (1 << ADDR_WIDTH); i = i + 1) begin
+            for(i = 0; i <= 4096; i = i + 1) begin
                 rom_Data[i] <= 'd0;
             end
         end

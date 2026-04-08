@@ -31,7 +31,7 @@ module alu #(
             `ALU_OP_SLTU:
                 Result = (A < B);
             `ALU_OP_XOR:
-                Result = A << B;
+                Result = A ^ B;
             `ALU_OP_SRL:
                 Result = A >> shamt;
             `ALU_OP_SRA:
@@ -62,5 +62,4 @@ module alu #(
         endcase
     end
 endmodule
-
 
