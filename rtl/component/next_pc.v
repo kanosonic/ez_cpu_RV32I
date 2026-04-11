@@ -10,17 +10,27 @@ module next_pc(
 
 	output reg [31:0] next_PC
 );
+	//always @(*) begin
+	//	case ({id_JAL, ex_Branch_taken, ex_JALR})
+	//		3'b000: next_PC = if_PC4;
+	//		3'b100: next_PC = id_PCImm;
+	//		3'b010: next_PC = ex_PCImm;
+	//		3'b001: next_PC = ex_Rs1Imm;
+	//		default: begin
+	//				next_PC = if_PC4;	//avoid making a latch
+	//				if($time > 5) $display($time, "ns: Can't get next PC!");				
+	//		end
+	//	endcase
+	//end
 	always @(*) begin
-		case ({id_JAL, ex_Branch_taken, ex_JALR})
-			3'b000: next_PC = if_PC4;
-			3'b100: next_PC = id_PCImm;
-			3'b010: next_PC = ex_PCImm;
-			3'b001: next_PC = ex_Rs1Imm;
-			default: begin
-					next_PC = if_PC4;	//avoid making a latch
-					if($time > 5) $display($time, "ns: Can't get next PC!");				
-			end
-		endcase
+		if (ex_JALR)
+			next_PC = ex_Rs1Imm;
+		else if (ex_Branch_taken)
+			next_PC = ex_PCImm;
+		else if (id_JAL)
+			next_PC = id_PCImm;
+		else
+			next_PC = if_PC4;
 	end
 	
 endmodule //next_pc
