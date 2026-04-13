@@ -21,6 +21,7 @@ module id_ex(
 	input id_ALUSrcA,	
 	input id_ALUSrcB,	
 	input id_Branch,
+	input id_JAL,
 	input id_JALR,
 
 	//from if_id
@@ -30,6 +31,7 @@ module id_ex(
 	input [31:0] id_PC,
 	input [31:0] id_PC4,
 	input [31:0] id_PCImm,
+	input id_pred_branch_taken,
 
 
 	output reg [31:0] ex_Imm,
@@ -45,6 +47,7 @@ module id_ex(
 	output reg ex_ALUSrcA,	
 	output reg ex_ALUSrcB,	
 	output reg ex_Branch,
+	output reg ex_JAL,
 	output reg ex_JALR,
 
 	output reg [4:0] ex_Rs1,
@@ -52,7 +55,8 @@ module id_ex(
 	output reg [4:0] ex_Rd,
 	output reg [31:0] ex_PC,
 	output reg [31:0] ex_PCImm,
-	output reg [31:0] ex_PC4
+	output reg [31:0] ex_PC4,
+	output reg ex_pred_branch_taken
 	
 );
 
@@ -69,13 +73,15 @@ module id_ex(
 			ex_ALUSrcA	<=	'd0;		
 			ex_ALUSrcB	<=	'd0;	
 			ex_Branch	<=	'd0;
+			ex_JAL		<=	'd0;
 			ex_JALR		<=	'd0;
 			ex_Rs1		<=	'd0;
 			ex_Rs2		<=	'd0;
 			ex_Rd		<=	'd0;
 			ex_PC		<=	'd0;
 			ex_PCImm 	<=	'd0;
-			ex_PC4		<=	'd0;												
+			ex_PC4		<=	'd0;
+			ex_pred_branch_taken <= 1'b0;												
 		end else begin
 			ex_Imm		<=	id_Imm		;
 			ex_Data1	<=	id_Data1	;
@@ -88,6 +94,7 @@ module id_ex(
 			ex_ALUSrcA	<=	id_ALUSrcA	;		
 			ex_ALUSrcB	<=	id_ALUSrcB	;	
 			ex_Branch	<=	id_Branch	;
+			ex_JAL		<=	id_JAL		;
 			ex_JALR		<=	id_JALR		;
 			ex_Rs1		<=	id_Rs1		;
 			ex_Rs2		<=	id_Rs2		;
@@ -95,6 +102,7 @@ module id_ex(
 			ex_PC		<=	id_PC		;
 			ex_PCImm 	<=	id_PCImm	;
 			ex_PC4		<=	id_PC4		;
+			ex_pred_branch_taken <= id_pred_branch_taken;
 
 		end
 	end

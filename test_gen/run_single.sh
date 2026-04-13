@@ -21,6 +21,9 @@ BUILD_DIR="${PROJECT_DIR}/test_gen/build/${RUN_NAME}"
 REL_BUILD_DIR="test_gen/build/${RUN_NAME}"
 SIM_LOG="${BUILD_DIR}/cpu_sim.log"
 METRICS_FILE="${BUILD_DIR}/cpu_metrics.txt"
+STATE_FILE="${STATE_FILE_OVERRIDE:-${BUILD_DIR}/cpu_state.txt}"
+VCD_FILE="${VCD_FILE_OVERRIDE:-${BUILD_DIR}/cpu_tb.vcd}"
+SIM_BIN="${SIM_BIN_OVERRIDE:-build/cpu_sim.vvp}"
 
 echo "=== Testing instruction: ${INSTR} ==="
 
@@ -55,19 +58,37 @@ python3 "${SCRIPT_DIR}/extract_qemu.py" "${BUILD_DIR}/${RUN_NAME}.elf" "${BUILD_
 echo "Step 4: Running CPU simulation..."
 cd "${PROJECT_DIR}"
 mkdir -p build
-rm -f build/cpu_state.txt
-rm -f "${SIM_LOG}" "${METRICS_FILE}"
+rm -f "${SIM_LOG}" "${METRICS_FILE}" "${STATE_FILE}"
 
-iverilog -g2012 -I rtl -I rtl/component -o build/cpu_sim.vvp \
-    testbench/cpu_tb.v rtl/core/cpu.v rtl/component/*.v 2>&1 || {
-    echo "Error: iverilog failed"
-    exit 1
-}
+if [ -n "${SIM_BIN_OVERRIDE:-}" ]; then
+    if [ ! -f "${SIM_BIN}" ]; then
+        echo "Error: Precompiled simulation binary ${SIM_BIN} not found"
+        exit 1
+    fi
+else
+    iverilog -g2012 -I rtl -I rtl/component -o "${SIM_BIN}" \
+        testbench/cpu_tb.v rtl/core/cpu.v rtl/component/*.v 2>&1 || {
+        echo "Error: iverilog failed"
+        exit 1
+    }
+fi
 
-vvp build/cpu_sim.vvp +HEXFILE="${REL_BUILD_DIR}/${RUN_NAME}.dat" > "${SIM_LOG}" 2>&1
+VVP_ARGS=(
+    "${SIM_BIN}"
+    "+HEXFILE=${REL_BUILD_DIR}/${RUN_NAME}.dat"
+    "+STATEFILE=${STATE_FILE}"
+)
 
-if [ ! -f "${PROJECT_DIR}/build/cpu_state.txt" ]; then
-    echo "Error: CPU simulation did not produce build/cpu_state.txt"
+if [ "${DISABLE_VCD:-0}" = "1" ]; then
+    VVP_ARGS+=("+NOVCD")
+else
+    VVP_ARGS+=("+VCDFILE=${VCD_FILE}")
+fi
+
+vvp "${VVP_ARGS[@]}" > "${SIM_LOG}" 2>&1
+
+if [ ! -f "${STATE_FILE}" ]; then
+    echo "Error: CPU simulation did not produce ${STATE_FILE}"
     exit 1
 fi
 
@@ -79,11 +100,8 @@ fi
 
 printf 'CPI=%s\n' "${CPI_VALUE}" > "${METRICS_FILE}"
 
-echo "Step 5: Copying CPU state..."
-cp "${PROJECT_DIR}/build/cpu_state.txt" "${BUILD_DIR}/cpu_state.txt"
-
-echo "Step 6: Comparing states..."
-if python3 "${SCRIPT_DIR}/compare_state.py" "${BUILD_DIR}/cpu_state.txt" "${BUILD_DIR}/qemu_state.txt"; then
+echo "Step 5: Comparing states..."
+if python3 "${SCRIPT_DIR}/compare_state.py" "${STATE_FILE}" "${BUILD_DIR}/qemu_state.txt"; then
     echo "CPI: ${CPI_VALUE}"
     echo "Result: PASS"
     exit 0

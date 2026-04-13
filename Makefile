@@ -25,6 +25,7 @@ TEST ?= all
 FUZZ_LOOPS ?= 1000
 FUZZ_SEED ?= 1
 FUZZ_STEPS ?= 32
+FUZZ_JOBS ?= $(shell getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
 TOOLCHAIN ?= /home/inori/下载/riscv
 export TOOLCHAIN
 
@@ -71,11 +72,11 @@ test:
 
 # Run randomized differential tests
 # Usage: make fuzz
-#        make fuzz FUZZ_LOOPS=200 FUZZ_SEED=123 FUZZ_STEPS=48
+#        make fuzz FUZZ_LOOPS=200 FUZZ_SEED=123 FUZZ_STEPS=48 FUZZ_JOBS=8
 fuzz:
 	@echo "Running RV32I differential fuzz tests..."
 	@cd test_gen && \
-		FUZZ_LOOPS=$(FUZZ_LOOPS) FUZZ_SEED=$(FUZZ_SEED) FUZZ_STEPS=$(FUZZ_STEPS) ./run_fuzz.sh
+		FUZZ_LOOPS=$(FUZZ_LOOPS) FUZZ_SEED=$(FUZZ_SEED) FUZZ_STEPS=$(FUZZ_STEPS) FUZZ_JOBS=$(FUZZ_JOBS) ./run_fuzz.sh
 
 clean:
 	@echo Cleaning Verilog build directory...

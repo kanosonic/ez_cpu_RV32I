@@ -4,6 +4,8 @@
 module cpu_tb;
 
     reg [1023:0] hexfile_path;
+    reg [1023:0] statefile_path;
+    reg [1023:0] vcdfile_path;
     integer f;
     integer fd;
     integer i;
@@ -17,11 +19,25 @@ module cpu_tb;
         else begin
             hexfile_path = "sim/asm/build/test.dat";
         end
+
+        if ($value$plusargs("STATEFILE=%s", statefile_path)) begin
+        end
+        else begin
+            statefile_path = "./build/cpu_state.txt";
+        end
+
+        if ($value$plusargs("VCDFILE=%s", vcdfile_path)) begin
+        end
+        else begin
+            vcdfile_path = "./build/cpu_tb.vcd";
+        end
     end
 
     initial begin
-        $dumpfile("./build/cpu_tb.vcd");
-        $dumpvars(0, cpu_tb);
+        if (!$test$plusargs("NOVCD")) begin
+            $dumpfile(vcdfile_path);
+            $dumpvars(0, cpu_tb);
+        end
     end
 
     reg clk;
@@ -57,7 +73,7 @@ module cpu_tb;
         $display("Number of clock cycles = %d", cycle_num);
         $display("CPI = %4f", cpi);
 
-        f = $fopen("./build/cpu_state.txt", "w");
+        f = $fopen(statefile_path, "w");
         $fwrite(f, "# Registers\n");
         for (i = 0; i < 32; i = i + 1) begin
             $fwrite(f, "x%0d: 0x%08h\n", i, u_cpu.u_reg_file.reg_Data[i]);

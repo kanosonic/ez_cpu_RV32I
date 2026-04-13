@@ -1,0 +1,3 @@
+# Fuzz and simulation artifacts
+/build/
+/test_gen/build/

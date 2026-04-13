@@ -16,11 +16,13 @@ module cpu(
     wire id_ex_Flush;
 
     wire [31:0] next_pc;
+    wire if_pred_branch_taken;
 
     // ---------- ID stage ----------
     wire [31:0] id_PC;
     wire [31:0] id_PC4;
     wire [31:0] id_Inst;
+    wire id_pred_branch_taken;
 
     wire [31:0] id_Imm;
     wire [31:0] id_rdata1;
@@ -57,6 +59,7 @@ module cpu(
     wire ex_ALUSrcA;
     wire ex_ALUSrcB;
     wire ex_Branch;
+    wire ex_JAL;
     wire ex_JALR;
 
     wire [4:0] ex_Rs1;
@@ -71,6 +74,8 @@ module cpu(
     wire [31:0] ex_Rs1Imm;
 
     wire ex_Branch_taken;
+    wire ex_pred_branch_taken;
+    wire ex_pred_fail;
 	wire ex_Branch_cond;
 
     // Forwarding
@@ -113,14 +118,24 @@ module cpu(
             );
 
     next_pc u_next_pc(
+                .clk(clk),
+                .rstn(rstn),
                 .id_JAL(id_JAL),
+                .id_pred_branch_taken(id_pred_branch_taken),
+                .ex_Branch(ex_Branch),
+                .ex_JAL(ex_JAL),
                 .ex_Branch_taken(ex_Branch_taken),
+                .ex_pred_fail(ex_pred_fail),
                 .ex_JALR(ex_JALR),
+                .if_PC(pc),
                 .if_PC4(pc4),
                 .id_PCImm(id_PCImm),
+                .ex_PC(ex_PC),
                 .ex_PCImm(ex_PCImm),
+                .ex_PC4(ex_PC4),
                 .ex_Rs1Imm(ex_Rs1Imm),
-                .next_PC(next_pc)
+                .next_PC(next_pc),
+                .if_pred_branch_taken(if_pred_branch_taken)
             );
 
     pc u_pc(
@@ -144,9 +159,11 @@ module cpu(
               .if_PC(pc),
               .if_PC4(pc4),
               .if_Inst(inst),
+              .if_pred_branch_taken(if_pred_branch_taken),
               .id_PC(id_PC),
               .id_PC4(id_PC4),
-              .id_Inst(id_Inst)
+              .id_Inst(id_Inst),
+              .id_pred_branch_taken(id_pred_branch_taken)
           );
 
     // ---------- ID stage logic ----------
@@ -212,6 +229,7 @@ module cpu(
               .id_ALUSrcA(id_ALUSrcA),
               .id_ALUSrcB(id_ALUSrcB),
               .id_Branch(id_Branch),
+              .id_JAL(id_JAL),
               .id_JALR(id_JALR),
 
               .id_Rs1(id_Rs1),
@@ -220,6 +238,7 @@ module cpu(
               .id_PC(id_PC),
               .id_PC4(id_PC4),
 			  .id_PCImm(id_PCImm),
+              .id_pred_branch_taken(id_pred_branch_taken),
 
               .ex_Imm(ex_Imm),
               .ex_Data1(ex_Data1),
@@ -232,6 +251,7 @@ module cpu(
               .ex_ALUSrcA(ex_ALUSrcA),
               .ex_ALUSrcB(ex_ALUSrcB),
               .ex_Branch(ex_Branch),
+              .ex_JAL(ex_JAL),
               .ex_JALR(ex_JALR),
 
               .ex_Rs1(ex_Rs1),
@@ -239,7 +259,8 @@ module cpu(
               .ex_Rd(ex_Rd),
               .ex_PC(ex_PC),
 			  .ex_PCImm(ex_PCImm),
-              .ex_PC4(ex_PC4)
+              .ex_PC4(ex_PC4),
+              .ex_pred_branch_taken(ex_pred_branch_taken)
           );
 
     // ---------- EX stage logic ----------
@@ -271,6 +292,7 @@ module cpu(
            ex_Data2;
 
 	assign ex_Branch_taken = ex_Branch && ex_Branch_cond;
+	assign ex_pred_fail = ex_Branch && (ex_Branch_taken ^ ex_pred_branch_taken);
 
     wire [31:0] alu_in1 = ex_ALUSrcA ? ex_PC : forwardA_data;
     wire [31:0] alu_in2 = ex_ALUSrcB ? ex_Imm : forwardB_data;
@@ -360,9 +382,10 @@ module cpu(
     // Hazard detection
     hazard_detector u_hazard_detector(
                         .ex_JALR(ex_JALR),
-                        .ex_Branch_taken(ex_Branch_taken),
+                        .ex_pred_fail(ex_pred_fail),
                         .ex_MemRead(ex_MemRead_flag),
                         .id_JAL(id_JAL),
+                        .id_pred_branch_taken(id_pred_branch_taken),
                         .id_Rs1(id_Rs1),
                         .id_Rs2(id_Rs2),
                         .ex_Rd(ex_Rd),

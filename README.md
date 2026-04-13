@@ -1,6 +1,6 @@
 # ez_cpu_RV32I
 
-`ez_cpu_RV32I` is a lightweight 5-stage RV32I pipeline CPU for RTL learning, simulation, directed differential testing, and differential fuzzing against a reference simulator.
+`ez_cpu_RV32I` is a lightweight 5-stage RV32I pipeline CPU with dynamic branch prediction for RTL learning, simulation, directed differential testing, and differential fuzzing against a reference simulator.
 
 ## Prerequisites
 
@@ -59,7 +59,7 @@ make clean
 | `make run` | Run the main testbench on `sim/asm/build/test.dat` |
 | `make wave` | Open `build/cpu_tb.vcd` in GTKWave |
 | `make test [TEST=name]` | Run directed differential tests, one or all |
-| `make fuzz [FUZZ_LOOPS=n] [FUZZ_SEED=s] [FUZZ_STEPS=k]` | Run differential fuzzing |
+| `make fuzz [FUZZ_LOOPS=n] [FUZZ_SEED=s] [FUZZ_STEPS=k] [FUZZ_JOBS=n]` | Run differential fuzzing |
 | `make clean` | Clean top-level, `sim/asm`, and `test_gen` generated files |
 
 ## Common Workflows
@@ -96,12 +96,13 @@ Run with the default 1000 loops:
 make fuzz
 ```
 
-Override the loop count, start seed, or program length:
+Override the loop count, start seed, program length, or parallel job count:
 
 ```bash
 make fuzz FUZZ_LOOPS=200
 make fuzz FUZZ_SEED=53 FUZZ_LOOPS=1
 make fuzz FUZZ_STEPS=64
+make fuzz FUZZ_JOBS=8
 ```
 
 The default fuzz configuration is:
@@ -109,6 +110,33 @@ The default fuzz configuration is:
 - `FUZZ_LOOPS=1000`
 - `FUZZ_SEED=1`
 - `FUZZ_STEPS=32`
+- `FUZZ_JOBS=<number of CPU cores>`
+
+`FUZZ_STEPS` is the number of randomized instructions generated in each fuzz program before the final terminal self-loop. Larger values increase coverage but also make each fuzz iteration slower.
+
+## Branch Prediction Unit
+
+The current fetch path includes a simple dynamic branch prediction unit in `rtl/component/bpu.v`.
+
+- `BPU` combines a `BHT` for direction prediction and a `BTB` for target prediction.
+- `BHT` uses a 2-bit saturating counter per entry:
+  - `00` strongly not taken
+  - `01` weakly not taken
+  - `10` weakly taken
+  - `11` strongly taken
+- `BHT` indexing uses a gshare-style global history register:
+  - `ghr[7:0]` records recent branch taken/not-taken results
+  - `if_index = {if_pc[11:10], ghr ^ if_pc[9:2]}`
+  - `ex_index = {ex_pc[11:10], ghr ^ ex_pc[9:2]}`
+- `BTB` is a 4-way set-associative target buffer with tree pseudo-LRU replacement.
+- Conditional branches are predicted taken only when:
+  - the `BTB` hits, and
+  - the `BHT` predicts taken
+- `jal` is predicted taken on a `BTB` hit.
+- `jalr` is still resolved later in the pipeline and is not predicted by the current BPU.
+- Predictor state is updated synchronously from EX-stage results, while IF-stage prediction is asynchronous.
+
+On a branch misprediction, the CPU uses `ex_pred_fail = ex_branch_taken ^ ex_pred_branch_taken` to redirect fetch and flush younger wrong-path instructions.
 
 ## Differential Test Flow
 
@@ -141,12 +169,14 @@ Each fuzz iteration does this:
    - an ELF for the reference simulator
    - a `.dat` image for the Verilog instruction ROM
 4. Extract the final reference architectural state with `test_gen/extract_qemu.py`.
-5. Run the RTL CPU on the same program.
+5. Run the RTL CPU on the same program, reusing one compiled simulation binary across fuzz cases.
 6. Compare register state with `test_gen/compare_state.py`.
 7. Stop immediately on the first mismatch and print:
    - the failing seed
    - a one-line repro command
    - the artifact directory containing the generated `.asm`, ELF, ROM image, and state dumps
+
+For faster fuzzing, `make fuzz FUZZ_JOBS=<n>` runs multiple seeds in parallel and disables VCD dumping during fuzz runs.
 
 Example repro after a failure:
 
