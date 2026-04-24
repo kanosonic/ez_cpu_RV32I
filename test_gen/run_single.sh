@@ -9,6 +9,7 @@ if [ -z "$INSTR" ]; then
 fi
 
 TOOLCHAIN="${TOOLCHAIN:-/home/inori/下载/riscv}"
+SIM_TIMEOUT="${SIM_TIMEOUT:-60}"
 QEMU=${TOOLCHAIN}/bin/qemu-riscv32
 AS=${TOOLCHAIN}/bin/riscv32-unknown-elf-as
 OBJCOPY=${TOOLCHAIN}/bin/riscv32-unknown-elf-objcopy
@@ -53,7 +54,10 @@ ${OBJCOPY} -O verilog --only-section=.text "${BUILD_DIR}/${RUN_NAME}.elf" "${BUI
 python3 "${SCRIPT_DIR}/word2byte.py" "${BUILD_DIR}/${RUN_NAME}.hex" "${BUILD_DIR}/${RUN_NAME}.dat"
 
 echo "Step 3: Extracting reference state..."
-python3 "${SCRIPT_DIR}/extract_qemu.py" "${BUILD_DIR}/${RUN_NAME}.elf" "${BUILD_DIR}/qemu_state.txt"
+python3 "${SCRIPT_DIR}/extract_qemu.py" "${BUILD_DIR}/${RUN_NAME}.elf" "${BUILD_DIR}/qemu_state.txt" || {
+    echo "Error: Reference extraction failed for ${INSTR}"
+    exit 1
+}
 
 echo "Step 4: Running CPU simulation..."
 cd "${PROJECT_DIR}"
@@ -85,7 +89,21 @@ else
     VVP_ARGS+=("+VCDFILE=${VCD_FILE}")
 fi
 
-vvp "${VVP_ARGS[@]}" > "${SIM_LOG}" 2>&1
+if command -v timeout >/dev/null 2>&1; then
+    set +e
+    timeout --kill-after=5s "${SIM_TIMEOUT}s" vvp "${VVP_ARGS[@]}" < /dev/null > "${SIM_LOG}" 2>&1
+    VVP_STATUS=$?
+    set -e
+    if [ "${VVP_STATUS}" -eq 124 ]; then
+        echo "Error: CPU simulation timed out after ${SIM_TIMEOUT}s"
+        exit 1
+    elif [ "${VVP_STATUS}" -ne 0 ]; then
+        echo "Error: CPU simulation failed"
+        exit 1
+    fi
+else
+    vvp "${VVP_ARGS[@]}" < /dev/null > "${SIM_LOG}" 2>&1
+fi
 
 if [ ! -f "${STATE_FILE}" ]; then
     echo "Error: CPU simulation did not produce ${STATE_FILE}"
@@ -98,15 +116,30 @@ if [ -z "${CPI_VALUE}" ]; then
     exit 1
 fi
 
-printf 'CPI=%s\n' "${CPI_VALUE}" > "${METRICS_FILE}"
+BRANCH_COUNT="$(awk '/^BRANCH_COUNT = / {print $3}' "${SIM_LOG}" | tail -n 1)"
+BRANCH_PRED_CORRECT="$(awk '/^BRANCH_PRED_CORRECT = / {print $3}' "${SIM_LOG}" | tail -n 1)"
+BRANCH_PRED_ACCURACY="$(awk '/^BRANCH_PRED_ACCURACY = / {gsub("%", "", $3); print $3}' "${SIM_LOG}" | tail -n 1)"
+if [ -z "${BRANCH_COUNT}" ] || [ -z "${BRANCH_PRED_CORRECT}" ] || [ -z "${BRANCH_PRED_ACCURACY}" ]; then
+    echo "Error: Failed to extract branch prediction metrics from ${SIM_LOG}"
+    exit 1
+fi
+
+{
+    printf 'CPI=%s\n' "${CPI_VALUE}"
+    printf 'BRANCH_COUNT=%s\n' "${BRANCH_COUNT}"
+    printf 'BRANCH_PRED_CORRECT=%s\n' "${BRANCH_PRED_CORRECT}"
+    printf 'BRANCH_PRED_ACCURACY=%s\n' "${BRANCH_PRED_ACCURACY}"
+} > "${METRICS_FILE}"
 
 echo "Step 5: Comparing states..."
 if python3 "${SCRIPT_DIR}/compare_state.py" "${STATE_FILE}" "${BUILD_DIR}/qemu_state.txt"; then
     echo "CPI: ${CPI_VALUE}"
+    echo "BRANCH prediction accuracy: ${BRANCH_PRED_ACCURACY}% (${BRANCH_PRED_CORRECT}/${BRANCH_COUNT})"
     echo "Result: PASS"
     exit 0
 else
     echo "CPI: ${CPI_VALUE}"
+    echo "BRANCH prediction accuracy: ${BRANCH_PRED_ACCURACY}% (${BRANCH_PRED_CORRECT}/${BRANCH_COUNT})"
     echo "Result: FAIL"
     echo "--- CPU State ---"
     head -40 "${BUILD_DIR}/cpu_state.txt" 2>/dev/null || true

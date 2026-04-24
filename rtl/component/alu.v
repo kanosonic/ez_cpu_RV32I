@@ -27,9 +27,9 @@ module alu #(
             `ALU_OP_SLL:
                 Result = A << shamt;
             `ALU_OP_SLT:
-                Result = ($signed(A) < $signed(B));
+                Result = ($signed(A) < $signed(B)) ? 32'd1 : 32'd0;
             `ALU_OP_SLTU:
-                Result = (A < B);
+                Result = (A < B) ? 32'd1 : 32'd0;
             `ALU_OP_XOR:
                 Result = A ^ B;
             `ALU_OP_SRL:
@@ -62,4 +62,3 @@ module alu #(
         endcase
     end
 endmodule
-

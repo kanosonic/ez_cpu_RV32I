@@ -1,3 +1,15 @@
 # Fuzz and simulation artifacts
 /build/
 /test_gen/build/
+
+# Python cache artifacts
+__pycache__/
+*.py[cod]
+
+# Predictor quantification records
+/quantification/pred/record/dynamic/ghr_off/*
+!/quantification/pred/record/dynamic/ghr_off/results.csv
+/quantification/pred/record/dynamic/ghr_on/*
+!/quantification/pred/record/dynamic/ghr_on/results.csv
+/quantification/pred/record/static/*
+!/quantification/pred/record/static/results.csv

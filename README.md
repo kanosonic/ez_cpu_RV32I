@@ -1,6 +1,6 @@
 # ez_cpu_RV32I
 
-`ez_cpu_RV32I` is a lightweight 5-stage RV32I pipeline CPU with dynamic branch prediction for RTL learning, simulation, directed differential testing, and differential fuzzing against a reference simulator.
+`ez_cpu_RV32I` is a lightweight 5-stage RV32I pipeline CPU with dynamic branch prediction for RTL learning, simulation, directed differential testing, differential fuzzing, and CoreMark-based branch predictor quantification.
 
 ## Prerequisites
 
@@ -9,13 +9,16 @@ Install these tools first:
 - `iverilog`
 - `vvp`
 - `gtkwave`
+- `verilator`(optional, for faster CoreMark benchmarking)
 - `python3`
+- `timeout` (optional, but recommended for benchmark host-side timeout control)
 - a RISC-V toolchain that provides:
   - `riscv32-unknown-elf-as`
   - `riscv32-unknown-elf-gcc`
   - `riscv32-unknown-elf-objcopy`
   - `riscv32-unknown-elf-objdump`
   - `riscv32-unknown-elf-run`
+- a local CoreMark source tree for the benchmark flow
 
 ## Set `TOOLCHAIN`
 
@@ -37,6 +40,16 @@ You can also pass it per command:
 ```bash
 make test TOOLCHAIN=/path/to/toolchain
 make fuzz TOOLCHAIN=/path/to/toolchain
+make benchmark TOOLCHAIN=/path/to/toolchain
+```
+
+## Set `COREMARK_DIR`
+
+The benchmark flow expects a CoreMark checkout. The default is `/home/inori/cpu/coremark`, but you can override it with `COREMARK_DIR`.
+
+```bash
+export COREMARK_DIR=/path/to/coremark
+make benchmark COREMARK_DIR=/path/to/coremark
 ```
 
 ## Quick Start
@@ -47,6 +60,8 @@ make run
 make wave
 make test
 make fuzz
+make benchmark
+./quantification/pred/script/run_all.sh --jobs 8
 make clean
 ```
 
@@ -54,12 +69,13 @@ make clean
 
 | Target | Description |
 |--------|-------------|
-| `make all` | Compile the Verilog testbench binary |
+| `make all` | Default top-level target; use `make run` to actually compile and execute the RTL testbench |
 | `make asm` | Build `sim/asm/src/test.asm` into ROM input data |
 | `make run` | Run the main testbench on `sim/asm/build/test.dat` |
 | `make wave` | Open `build/cpu_tb.vcd` in GTKWave |
 | `make test [TEST=name]` | Run directed differential tests, one or all |
 | `make fuzz [FUZZ_LOOPS=n] [FUZZ_SEED=s] [FUZZ_STEPS=k] [FUZZ_JOBS=n]` | Run differential fuzzing |
+| `make benchmark [BENCH_*=...]` | Build and run CoreMark on the RTL CPU with Verilator |
 | `make clean` | Clean top-level, `sim/asm`, and `test_gen` generated files |
 
 ## Common Workflows
@@ -72,6 +88,8 @@ make run
 ```
 
 This assembles `sim/asm/src/test.asm`, converts it to the byte-oriented `.dat` format expected by `testbench/cpu_tb.v`, then simulates the CPU.
+
+`make run` recompiles the main `iverilog` testbench and runs it on the generated instruction ROM image.
 
 ### Run directed differential tests
 
@@ -186,11 +204,85 @@ make fuzz FUZZ_LOOPS=1 FUZZ_SEED=53 FUZZ_STEPS=32
 
 This makes differential fuzz useful for finding pipeline, forwarding, branch, and ALU corner-case bugs with a deterministic seed-based workflow.
 
+## CoreMark Benchmark
+
+Run a single CoreMark measurement:
+
+```bash
+make benchmark
+```
+
+Useful benchmark knobs from `Makefile` are:
+
+- `BENCH_ITERATIONS=10`
+- `BENCH_DATA_SIZE=2000`
+- `BENCH_OPT=-O2`
+- `BENCH_MAX_CYCLES=20000000`
+- `BENCH_SIM_TIMEOUT=300`
+- `BENCH_VERILATOR_JOBS=<number of CPU cores>`
+- `BENCH_DYNAMIC_PREDICTION=1`
+- `BENCH_GHR_ON=1`
+- `BENCH_BPU_GHR_BITS=8`
+- `BENCH_BPU_BHT_INDEX_BITS=10`
+- `BENCH_BPU_BHT_HISTORY_BITS=2`
+
+Example:
+
+```bash
+make benchmark BENCH_MAX_CYCLES=100000000 BENCH_GHR_ON=0 BENCH_BPU_BHT_INDEX_BITS=9
+```
+
+The benchmark flow in `benchmark/run_coremark.sh`:
+
+1. builds a freestanding RV32I CoreMark ELF with the external CoreMark tree
+2. converts `.text` into the byte-oriented ROM image used by the RTL testbench
+3. converts data sections into a RAM initialization image
+4. compiles `testbench/cpu_tb.v` plus the RTL with Verilator
+5. runs the simulation with `+NOVCD` and the configured cycle limit
+6. prints CPI and branch-prediction statistics parsed later by the quantification scripts
+
+Artifacts are written under `build/benchmark_coremark/` and `build/verilator_bench/`.
+
+## Branch Predictor Quantification
+
+This repo also includes a reproducible CoreMark branch-predictor sweep under `quantification/pred/`.
+
+Run a small smoke test:
+
+```bash
+./quantification/pred/script/run_all.sh --cycles 1M --limit-configs 1 --strategy all --jobs 3
+```
+
+Run the default sweep:
+
+```bash
+./quantification/pred/script/run_all.sh --jobs 8
+```
+
+The default sweep uses `BHT_HISTORY_BITS=2` for dynamic prediction:
+
+- `static` uses the default top-level BPU parameters with dynamic prediction disabled
+- `ghr_off` keeps `GHR_BITS=0` and sweeps `BHT_INDEX_BITS=1..12`
+- `ghr_on` sweeps `GHR_BITS=0..10` and `BHT_INDEX_BITS=1..12` with `BHT_INDEX_BITS > GHR_BITS`
+
+Generated outputs:
+
+- `quantification/pred/record/` — raw measurement records and per-run logs
+- `quantification/pred/plot/cycle_branch_accuracy.svg` — best branch accuracy by cycle
+- `quantification/pred/plot/cycle_cpi.svg` — best CPI by cycle
+- `quantification/pred/plot/ghr_off_idx_accuracy_1000M.svg` — `ghr_off` accuracy versus `BHT_INDEX_BITS`
+- `quantification/pred/plot/ghr_on_best_by_ghr_1000M.svg` — best `ghr_on` accuracy versus `GHR_BITS`
+- `quantification/pred/plot/ghr_on_accuracy_heatmap.svg` — `ghr_on` accuracy heatmap
+- `quantification/pred/report.md` — generated summary report
+
+Note: the first two report figures use the best nonzero-`GHR_BITS` `ghr_on` point at each cycle, restricted to `GHR_BITS=1..10`, so the `ghr_on` curve is directly comparable with `ghr_off` instead of collapsing to the `ghr=0` case.
+
 ## Key Files
 
 - `rtl/core/cpu.v` — top-level 5-stage CPU
 - `rtl/component/` — ALU, control, forwarding, hazard, memory, and pipeline modules
 - `testbench/cpu_tb.v` — simulation testbench, CPI reporting, and final CPU state dump
+- `benchmark/run_coremark.sh` — CoreMark build + Verilator benchmark runner
 - `sim/asm/` — simple hand-written assembly flow for `make run`
 - `test_gen/tests/` — directed RV32I differential tests
 - `test_gen/run_single.sh` — one directed differential run
@@ -199,6 +291,10 @@ This makes differential fuzz useful for finding pipeline, forwarding, branch, an
 - `test_gen/generate_fuzz.py` — randomized RV32I program generator
 - `test_gen/extract_qemu.py` — reference state extractor
 - `test_gen/compare_state.py` — architectural state comparator
+- `quantification/pred/script/run_all.sh` — quantification batch driver
+- `quantification/pred/script/run_quantification.py` — parameter sweep runner
+- `quantification/pred/script/plot_quantification.py` — SVG/plot generator
+- `quantification/pred/script/generate_report.py` — Markdown report generator
 
 ## CPI Note
 

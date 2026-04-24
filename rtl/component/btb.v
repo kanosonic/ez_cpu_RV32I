@@ -119,7 +119,7 @@ module btb #(
 			end else begin
 				// A no-hit branch always replaces the victim selected by the
 				// pseudo-LRU tree, exactly following the 3-bit PLRU state.
-				replace_way = plru_get_victim(plru_r[ex_index]);
+				replace_way = {30'b0, plru_get_victim(plru_r[ex_index])};
 				valid_r[ex_index][replace_way] <= 1'b1;
 				tag_r[ex_index][replace_way] <= ex_tag;
 				branch_target_r[ex_index][replace_way] <= ex_branch_target[31:2];

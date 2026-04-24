@@ -16,8 +16,11 @@ LOAD_OPS = ["lb", "lbu", "lh", "lhu", "lw"]
 STORE_OPS = ["sb", "sh", "sw"]
 
 
-def random_reg(rng):
-    return rng.choice(GENERAL_REGS)
+def random_reg(rng, exclude=None):
+    if exclude is None:
+        exclude = set()
+    candidates = [reg for reg in GENERAL_REGS if reg not in exclude]
+    return rng.choice(candidates)
 
 
 def signed_imm(rng):
@@ -26,6 +29,10 @@ def signed_imm(rng):
 
 def shift_imm(rng):
     return rng.randint(0, 31)
+
+
+def small_signed_imm(rng):
+    return rng.randint(-32, 31)
 
 
 def aligned_offset(rng, op):
@@ -37,7 +44,8 @@ def aligned_offset(rng, op):
 
 
 def emit_init(lines, rng):
-    lines.append("    addi x31, x0, 512")
+    lines.append(f"    lui {BASE_REG}, %hi(data_base)")
+    lines.append(f"    addi {BASE_REG}, {BASE_REG}, %lo(data_base)")
     for reg in GENERAL_REGS:
         lines.append(f"    addi {reg}, x0, {signed_imm(rng)}")
 
@@ -115,6 +123,36 @@ def emit_jalr(lines, rng, label_id):
     lines.append(f"{label}:")
 
 
+def emit_loop(lines, rng, label_id):
+    counter = random_reg(rng)
+    state = random_reg(rng, {counter})
+    temp = random_reg(rng, {counter, state})
+    accum = random_reg(rng, {counter, state, temp})
+    loop_label = f"real_loop_{label_id}"
+    skip_label = f"real_loop_skip_{label_id}"
+    iterations = rng.randint(3, 8)
+
+    lines.append(f"    addi {counter}, x0, {iterations}")
+    lines.append(f"    addi {state}, x0, {rng.randint(0, 1)}")
+    lines.append(f"{loop_label}:")
+    lines.append(f"    andi {temp}, {state}, 1")
+    lines.append(f"    beq {temp}, x0, {skip_label}")
+
+    if rng.random() < 0.5:
+        lines.append(f"    addi {accum}, {accum}, {small_signed_imm(rng)}")
+    else:
+        lines.append(f"    xori {accum}, {accum}, {rng.randint(0, 31)}")
+
+    lines.append(f"{skip_label}:")
+    if rng.random() < 0.5:
+        lines.append(f"    sw {accum}, {aligned_offset(rng, 'sw')}({BASE_REG})")
+    else:
+        lines.append(f"    lw {accum}, {aligned_offset(rng, 'lw')}({BASE_REG})")
+    lines.append(f"    xori {state}, {state}, 1")
+    lines.append(f"    addi {counter}, {counter}, -1")
+    lines.append(f"    bne {counter}, x0, {loop_label}")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, required=True)
@@ -134,8 +172,8 @@ def main():
     label_id = 0
     for _ in range(args.steps):
         kind = rng.choices(
-            ["imm", "shift", "reg", "uop", "mem", "branch", "jal", "jalr"],
-            weights=[20, 10, 22, 8, 14, 14, 6, 6],
+            ["imm", "shift", "reg", "uop", "mem", "branch", "jal", "jalr", "loop"],
+            weights=[18, 9, 20, 8, 14, 12, 6, 5, 8],
             k=1,
         )[0]
 
@@ -155,8 +193,11 @@ def main():
         elif kind == "jal":
             emit_jal(lines, rng, label_id)
             label_id += 1
-        else:
+        elif kind == "jalr":
             emit_jalr(lines, rng, label_id)
+            label_id += 1
+        else:
+            emit_loop(lines, rng, label_id)
             label_id += 1
 
     lines.extend(
@@ -164,6 +205,9 @@ def main():
             "loop:",
             "    addi x0, x0, 0",
             "    j loop",
+            "    .balign 64",
+            "data_base:",
+            "    .space 64",
             "",
         ]
     )

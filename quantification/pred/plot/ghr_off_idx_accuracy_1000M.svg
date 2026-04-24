@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520">
+<rect width="100%" height="100%" fill="white"/>
+<text x="450.0" y="30" text-anchor="middle" font-size="20">GHR-Off Accuracy vs BHT_INDEX_BITS at 1000M</text>
+<line x1="70" y1="450" x2="830" y2="450" stroke="black"/>
+<line x1="70" y1="70" x2="70" y2="450" stroke="black"/>
+<text x="450.0" y="500" text-anchor="middle">BHT_INDEX_BITS</text>
+<text x="20" y="260.0" transform="rotate(-90 20,260.0)" text-anchor="middle">Branch Accuracy (%)</text>
+<line x1="70" y1="450.00" x2="830" y2="450.00" stroke="#d0d0d0" stroke-dasharray="4 4"/>
+<text x="60" y="454.00" text-anchor="end" font-size="11">0.0000</text>
+<line x1="70" y1="374.00" x2="830" y2="374.00" stroke="#d0d0d0" stroke-dasharray="4 4"/>
+<text x="60" y="378.00" text-anchor="end" font-size="11">20.000</text>
+<line x1="70" y1="298.00" x2="830" y2="298.00" stroke="#d0d0d0" stroke-dasharray="4 4"/>
+<text x="60" y="302.00" text-anchor="end" font-size="11">40.000</text>
+<line x1="70" y1="222.00" x2="830" y2="222.00" stroke="#d0d0d0" stroke-dasharray="4 4"/>
+<text x="60" y="226.00" text-anchor="end" font-size="11">60.000</text>
+<line x1="70" y1="146.00" x2="830" y2="146.00" stroke="#d0d0d0" stroke-dasharray="4 4"/>
+<text x="60" y="150.00" text-anchor="end" font-size="11">80.000</text>
+<line x1="70" y1="70.00" x2="830" y2="70.00" stroke="#d0d0d0" stroke-dasharray="4 4"/>
+<text x="60" y="74.00" text-anchor="end" font-size="11">100.00</text>
+<line x1="70.00" y1="70" x2="70.00" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="70.00" y="472" text-anchor="middle" font-size="11">1</text>
+<line x1="139.09" y1="70" x2="139.09" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="139.09" y="472" text-anchor="middle" font-size="11">2</text>
+<line x1="208.18" y1="70" x2="208.18" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="208.18" y="472" text-anchor="middle" font-size="11">3</text>
+<line x1="277.27" y1="70" x2="277.27" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="277.27" y="472" text-anchor="middle" font-size="11">4</text>
+<line x1="346.36" y1="70" x2="346.36" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="346.36" y="472" text-anchor="middle" font-size="11">5</text>
+<line x1="415.45" y1="70" x2="415.45" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="415.45" y="472" text-anchor="middle" font-size="11">6</text>
+<line x1="484.55" y1="70" x2="484.55" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="484.55" y="472" text-anchor="middle" font-size="11">7</text>
+<line x1="553.64" y1="70" x2="553.64" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="553.64" y="472" text-anchor="middle" font-size="11">8</text>
+<line x1="622.73" y1="70" x2="622.73" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="622.73" y="472" text-anchor="middle" font-size="11">9</text>
+<line x1="691.82" y1="70" x2="691.82" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="691.82" y="472" text-anchor="middle" font-size="11">10</text>
+<line x1="760.91" y1="70" x2="760.91" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="760.91" y="472" text-anchor="middle" font-size="11">11</text>
+<line x1="830.00" y1="70" x2="830.00" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="830.00" y="472" text-anchor="middle" font-size="11">12</text>
+<polyline fill="none" stroke="#1f77b4" stroke-width="2" points="70.00,146.79 139.09,126.13 208.18,121.15 277.27,116.37 346.36,111.92 415.45,110.28 484.55,109.93 553.64,108.53 622.73,108.42 691.82,108.43 760.91,108.43 830.00,108.43"/>
+<circle cx="70.00" cy="146.79" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>ghr_off: bht_index_bits=1, value=79.7932</title>
+<text x="70.00" y="136.79" text-anchor="middle" font-size="10" fill="#1f77b4">79.793</text>
+<circle cx="139.09" cy="126.13" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>ghr_off: bht_index_bits=2, value=85.2298</title>
+<text x="139.09" y="116.13" text-anchor="middle" font-size="10" fill="#1f77b4">85.230</text>
+<circle cx="208.18" cy="121.15" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>ghr_off: bht_index_bits=3, value=86.5406</title>
+<text x="208.18" y="111.15" text-anchor="middle" font-size="10" fill="#1f77b4">86.541</text>
+<circle cx="277.27" cy="116.37" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>ghr_off: bht_index_bits=4, value=87.7964</title>
+<text x="277.27" y="106.37" text-anchor="middle" font-size="10" fill="#1f77b4">87.796</text>
+<circle cx="346.36" cy="111.92" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>ghr_off: bht_index_bits=5, value=88.9695</title>
+<text x="346.36" y="101.92" text-anchor="middle" font-size="10" fill="#1f77b4">88.969</text>
+<circle cx="415.45" cy="110.28" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>ghr_off: bht_index_bits=6, value=89.3992</title>
+<text x="415.45" y="100.28" text-anchor="middle" font-size="10" fill="#1f77b4">89.399</text>
+<circle cx="484.55" cy="109.93" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>ghr_off: bht_index_bits=7, value=89.4934</title>
+<text x="484.55" y="99.93" text-anchor="middle" font-size="10" fill="#1f77b4">89.493</text>
+<circle cx="553.64" cy="108.53" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>ghr_off: bht_index_bits=8, value=89.8607</title>
+<text x="553.64" y="98.53" text-anchor="middle" font-size="10" fill="#1f77b4">89.861</text>
+<circle cx="622.73" cy="108.42" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>ghr_off: bht_index_bits=9, value=89.8897</title>
+<text x="622.73" y="98.42" text-anchor="middle" font-size="10" fill="#1f77b4">89.890</text>
+<circle cx="691.82" cy="108.43" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>ghr_off: bht_index_bits=10, value=89.8861</title>
+<text x="691.82" y="98.43" text-anchor="middle" font-size="10" fill="#1f77b4">89.886</text>
+<circle cx="760.91" cy="108.43" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>ghr_off: bht_index_bits=11, value=89.8875</title>
+<text x="760.91" y="98.43" text-anchor="middle" font-size="10" fill="#1f77b4">89.888</text>
+<circle cx="830.00" cy="108.43" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>ghr_off: bht_index_bits=12, value=89.8875</title>
+<text x="830.00" y="98.43" text-anchor="middle" font-size="10" fill="#1f77b4">89.888</text>
+<rect x="690" y="46" width="14" height="14" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<text x="710" y="58" font-size="14">ghr_off</text>
+</svg>

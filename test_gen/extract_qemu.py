@@ -10,6 +10,7 @@ OUTPUT = sys.argv[2] if len(sys.argv) > 2 else "qemu_state.txt"
 TOOLCHAIN = os.environ.get("TOOLCHAIN", "/home/inori/下载/riscv")
 OBJDUMP = f"{TOOLCHAIN}/bin/riscv32-unknown-elf-objdump"
 SIM = f"{TOOLCHAIN}/bin/riscv32-unknown-elf-run"
+REF_TIMEOUT = float(os.environ.get("REF_TIMEOUT", "60"))
 
 ABI_TO_X = {
     "zero": 0,
@@ -51,7 +52,13 @@ TRACE_RE = re.compile(r"-wrote\s+([a-zA-Z0-9]+)\s*=\s*(0x[0-9a-fA-F]+|[0-9]+)")
 
 
 def find_loop_addr(elf_path):
-    result = subprocess.run([OBJDUMP, "-d", elf_path], capture_output=True, text=True, check=True)
+    result = subprocess.run(
+        [OBJDUMP, "-d", elf_path],
+        capture_output=True,
+        text=True,
+        check=True,
+        stdin=subprocess.DEVNULL,
+    )
     fallback_addr = None
     for line in result.stdout.splitlines():
         if "<loop>:" in line:
@@ -77,19 +84,27 @@ def main():
         return 1
 
     loop_addr = find_loop_addr(ELF)
-    result = subprocess.run(
-        [
-            SIM,
-            "--memory-region",
-            "0x0,64k",
-            "--watch-pc-int",
-            f"0x{loop_addr:x}",
-            "--trace-register=on",
-            ELF,
-        ],
-        capture_output=True,
-        text=True,
-    )
+    try:
+        result = subprocess.run(
+            [
+                SIM,
+                "--memory-region",
+                "0x0,64k",
+                "--watch-pc-int",
+                f"0x{loop_addr:x}",
+                "--trace-register=on",
+                ELF,
+            ],
+            capture_output=True,
+            text=True,
+            stdin=subprocess.DEVNULL,
+            timeout=REF_TIMEOUT,
+        )
+    except subprocess.TimeoutExpired as exc:
+        output = (exc.stdout or "") + (exc.stderr or "")
+        if output:
+            print(output)
+        raise RuntimeError(f"Reference simulator timed out after {REF_TIMEOUT:.0f}s") from exc
 
     output = result.stdout + result.stderr
     regs = {idx: 0 for idx in range(32)}

@@ -4,7 +4,7 @@ module inst_rom(
 	output reg [31:0] inst
 );
 
-	reg [31:0] rom_data [0:4096];
+	reg [31:0] rom_data [0:4095];
 	//integer i;
 	//initial begin
 	//	for(i = 0; i < 256; i = i + 1) begin
@@ -80,7 +80,7 @@ module inst_rom(
 	//end
 
 	always @(*) begin
-		inst = rom_data[addr[9:2]];	//read, word aligned
+		inst = rom_data[addr[13:2]];	//read, word aligned
 	end
 
 endmodule

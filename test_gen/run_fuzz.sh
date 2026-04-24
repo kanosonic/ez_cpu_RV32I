@@ -9,6 +9,8 @@ FUZZ_SEED="${FUZZ_SEED:-1}"
 FUZZ_STEPS="${FUZZ_STEPS:-32}"
 FUZZ_JOBS="${FUZZ_JOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)}"
 TOTAL_CPI="0"
+TOTAL_BRANCH_COUNT=0
+TOTAL_BRANCH_PRED_CORRECT=0
 SHARED_SIM_BIN="${PROJECT_DIR}/build/cpu_fuzz_sim.vvp"
 STATUS_ROOT="${PROJECT_DIR}/test_gen/build/fuzz_status"
 
@@ -48,6 +50,9 @@ run_fuzz_case() {
     local metrics_path
     local status_path
     local cpi_value
+    local branch_count
+    local branch_pred_correct
+    local branch_pred_accuracy
 
     run_name=$(printf "fuzz_%05d" "$((idx + 1))")
     build_dir="${PROJECT_DIR}/test_gen/build/${run_name}"
@@ -105,18 +110,35 @@ EOF
             exit 1
         fi
 
+        branch_count="$(awk -F= '/^BRANCH_COUNT=/{print $2}' "${metrics_path}" | tail -n 1)"
+        branch_pred_correct="$(awk -F= '/^BRANCH_PRED_CORRECT=/{print $2}' "${metrics_path}" | tail -n 1)"
+        branch_pred_accuracy="$(awk -F= '/^BRANCH_PRED_ACCURACY=/{print $2}' "${metrics_path}" | tail -n 1)"
+        if [ -z "${branch_count}" ] || [ -z "${branch_pred_correct}" ] || [ -z "${branch_pred_accuracy}" ]; then
+            cat > "${status_path}" <<EOF
+FAIL
+seed=${seed}
+run_name=${run_name}
+build_dir=${build_dir}
+reason=missing_branch_metrics
+EOF
+            exit 1
+        fi
+
         cat > "${status_path}" <<EOF
 PASS
 seed=${seed}
 run_name=${run_name}
 build_dir=${build_dir}
 cpi=${cpi_value}
+branch_count=${branch_count}
+branch_pred_correct=${branch_pred_correct}
+branch_pred_accuracy=${branch_pred_accuracy}
 EOF
 
         # Keep failure artifacts for repro, but delete successful fuzz outputs
         # immediately to avoid filling the workspace with generated files.
         rm -rf "${build_dir}"
-    } > "${build_dir}/fuzz.log" 2>&1
+    } < /dev/null > "${build_dir}/fuzz.log" 2>&1
 }
 
 echo "========================================"
@@ -204,11 +226,21 @@ for ((idx = 0; idx < FUZZ_LOOPS; idx++)); do
         exit 1
     fi
 
+    branch_count="$(awk -F= '/^branch_count=/{print $2}' "${status_path}" | tail -n 1)"
+    branch_pred_correct="$(awk -F= '/^branch_pred_correct=/{print $2}' "${status_path}" | tail -n 1)"
+    if [ -z "${branch_count}" ] || [ -z "${branch_pred_correct}" ]; then
+        echo "Error: Failed to parse branch prediction metrics from ${status_path}"
+        exit 1
+    fi
+
     TOTAL_CPI="$(awk -v sum="${TOTAL_CPI}" -v cpi="${cpi_value}" 'BEGIN { printf "%.6f", sum + cpi }')"
+    TOTAL_BRANCH_COUNT=$((TOTAL_BRANCH_COUNT + branch_count))
+    TOTAL_BRANCH_PRED_CORRECT=$((TOTAL_BRANCH_PRED_CORRECT + branch_pred_correct))
     pass_count=$((pass_count + 1))
 done
 
 AVERAGE_CPI="$(awk -v sum="${TOTAL_CPI}" -v loops="${FUZZ_LOOPS}" 'BEGIN { if (loops == 0) printf "0.000000"; else printf "%.6f", sum / loops }')"
+BRANCH_PRED_ACCURACY="$(awk -v correct="${TOTAL_BRANCH_PRED_CORRECT}" -v total="${TOTAL_BRANCH_COUNT}" 'BEGIN { if (total == 0) printf "0.000000"; else printf "%.6f", 100.0 * correct / total }')"
 
 find "${STATUS_ROOT}" -mindepth 1 -delete
 rmdir "${STATUS_ROOT}" 2>/dev/null || true
@@ -217,4 +249,5 @@ echo ""
 echo "========================================"
 echo "Differential fuzz summary: ${pass_count}/${FUZZ_LOOPS} PASS"
 echo "Average CPI: ${AVERAGE_CPI}"
+echo "BRANCH prediction accuracy: ${BRANCH_PRED_ACCURACY}% (${TOTAL_BRANCH_PRED_CORRECT}/${TOTAL_BRANCH_COUNT})"
 echo "========================================"

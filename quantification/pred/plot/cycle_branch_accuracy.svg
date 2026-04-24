@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520">
+<rect width="100%" height="100%" fill="white"/>
+<text x="450.0" y="30" text-anchor="middle" font-size="20">Branch Accuracy vs Cycles</text>
+<line x1="70" y1="450" x2="830" y2="450" stroke="black"/>
+<line x1="70" y1="70" x2="70" y2="450" stroke="black"/>
+<text x="450.0" y="500" text-anchor="middle">BENCH_MAX_CYCLES</text>
+<text x="20" y="260.0" transform="rotate(-90 20,260.0)" text-anchor="middle">Branch Accuracy (%)</text>
+<line x1="70" y1="450.00" x2="830" y2="450.00" stroke="#d0d0d0" stroke-dasharray="4 4"/>
+<text x="60" y="454.00" text-anchor="end" font-size="11">20.000</text>
+<line x1="70" y1="374.00" x2="830" y2="374.00" stroke="#d0d0d0" stroke-dasharray="4 4"/>
+<text x="60" y="378.00" text-anchor="end" font-size="11">36.000</text>
+<line x1="70" y1="298.00" x2="830" y2="298.00" stroke="#d0d0d0" stroke-dasharray="4 4"/>
+<text x="60" y="302.00" text-anchor="end" font-size="11">52.000</text>
+<line x1="70" y1="222.00" x2="830" y2="222.00" stroke="#d0d0d0" stroke-dasharray="4 4"/>
+<text x="60" y="226.00" text-anchor="end" font-size="11">68.000</text>
+<line x1="70" y1="146.00" x2="830" y2="146.00" stroke="#d0d0d0" stroke-dasharray="4 4"/>
+<text x="60" y="150.00" text-anchor="end" font-size="11">84.000</text>
+<line x1="70" y1="70.00" x2="830" y2="70.00" stroke="#d0d0d0" stroke-dasharray="4 4"/>
+<text x="60" y="74.00" text-anchor="end" font-size="11">100.00</text>
+<line x1="70.00" y1="70" x2="70.00" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="70.00" y="472" text-anchor="middle" font-size="11">1M</text>
+<line x1="323.33" y1="70" x2="323.33" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="323.33" y="472" text-anchor="middle" font-size="11">10M</text>
+<line x1="500.41" y1="70" x2="500.41" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="500.41" y="472" text-anchor="middle" font-size="11">50M</text>
+<line x1="576.67" y1="70" x2="576.67" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="576.67" y="472" text-anchor="middle" font-size="11">100M</text>
+<line x1="652.93" y1="70" x2="652.93" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="652.93" y="472" text-anchor="middle" font-size="11">200M</text>
+<line x1="753.74" y1="70" x2="753.74" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="753.74" y="472" text-anchor="middle" font-size="11">500M</text>
+<line x1="798.35" y1="70" x2="798.35" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="798.35" y="472" text-anchor="middle" font-size="11">750M</text>
+<line x1="830.00" y1="70" x2="830.00" y2="450" stroke="#e2e2e2" stroke-dasharray="4 4"/>
+<text x="830.00" y="472" text-anchor="middle" font-size="11">1000M</text>
+<polyline fill="none" stroke="#1f77b4" stroke-width="2" points="70.00,397.92 323.33,395.02 500.41,395.02 576.67,395.02 652.93,395.02 753.74,395.02 798.35,395.02 830.00,395.02"/>
+<circle cx="70.00" cy="397.92" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>static: BENCH_MAX_CYCLES=1000000, value=30.9638</title>
+<text x="70.00" y="387.92" text-anchor="middle" font-size="10" fill="#1f77b4">30.964</text>
+<circle cx="323.33" cy="395.02" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>static: BENCH_MAX_CYCLES=10000000, value=31.5750</title>
+<text x="323.33" y="385.02" text-anchor="middle" font-size="10" fill="#1f77b4">31.575</text>
+<circle cx="500.41" cy="395.02" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>static: BENCH_MAX_CYCLES=50000000, value=31.5750</title>
+<text x="500.41" y="385.02" text-anchor="middle" font-size="10" fill="#1f77b4">31.575</text>
+<circle cx="576.67" cy="395.02" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>static: BENCH_MAX_CYCLES=100000000, value=31.5750</title>
+<text x="576.67" y="385.02" text-anchor="middle" font-size="10" fill="#1f77b4">31.575</text>
+<circle cx="652.93" cy="395.02" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>static: BENCH_MAX_CYCLES=200000000, value=31.5750</title>
+<text x="652.93" y="385.02" text-anchor="middle" font-size="10" fill="#1f77b4">31.575</text>
+<circle cx="753.74" cy="395.02" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>static: BENCH_MAX_CYCLES=500000000, value=31.5750</title>
+<text x="753.74" y="385.02" text-anchor="middle" font-size="10" fill="#1f77b4">31.575</text>
+<circle cx="798.35" cy="395.02" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>static: BENCH_MAX_CYCLES=750000000, value=31.5750</title>
+<text x="798.35" y="385.02" text-anchor="middle" font-size="10" fill="#1f77b4">31.575</text>
+<circle cx="830.00" cy="395.02" r="4" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<title>static: BENCH_MAX_CYCLES=1000000000, value=31.5750</title>
+<text x="830.00" y="385.02" text-anchor="middle" font-size="10" fill="#1f77b4">31.575</text>
+<rect x="690" y="46" width="14" height="14" fill="#1f77b4" stroke="none" stroke-width="0"/>
+<text x="710" y="58" font-size="14">static</text>
+<polyline fill="none" stroke="#d62728" stroke-width="2" points="70.00,118.02 323.33,118.02 500.41,118.02 576.67,118.02 652.93,118.02 753.74,118.02 798.35,118.02 830.00,118.02"/>
+<circle cx="70.00" cy="118.02" r="4" fill="#d62728" stroke="none" stroke-width="0"/>
+<title>ghr_off: BENCH_MAX_CYCLES=1000000, value=89.8897</title>
+<text x="70.00" y="108.02" text-anchor="middle" font-size="10" fill="#d62728">89.890</text>
+<circle cx="323.33" cy="118.02" r="4" fill="#d62728" stroke="none" stroke-width="0"/>
+<title>ghr_off: BENCH_MAX_CYCLES=10000000, value=89.8897</title>
+<text x="323.33" y="108.02" text-anchor="middle" font-size="10" fill="#d62728">89.890</text>
+<circle cx="500.41" cy="118.02" r="4" fill="#d62728" stroke="none" stroke-width="0"/>
+<title>ghr_off: BENCH_MAX_CYCLES=50000000, value=89.8897</title>
+<text x="500.41" y="108.02" text-anchor="middle" font-size="10" fill="#d62728">89.890</text>
+<circle cx="576.67" cy="118.02" r="4" fill="#d62728" stroke="none" stroke-width="0"/>
+<title>ghr_off: BENCH_MAX_CYCLES=100000000, value=89.8897</title>
+<text x="576.67" y="108.02" text-anchor="middle" font-size="10" fill="#d62728">89.890</text>
+<circle cx="652.93" cy="118.02" r="4" fill="#d62728" stroke="none" stroke-width="0"/>
+<title>ghr_off: BENCH_MAX_CYCLES=200000000, value=89.8897</title>
+<text x="652.93" y="108.02" text-anchor="middle" font-size="10" fill="#d62728">89.890</text>
+<circle cx="753.74" cy="118.02" r="4" fill="#d62728" stroke="none" stroke-width="0"/>
+<title>ghr_off: BENCH_MAX_CYCLES=500000000, value=89.8897</title>
+<text x="753.74" y="108.02" text-anchor="middle" font-size="10" fill="#d62728">89.890</text>
+<circle cx="798.35" cy="118.02" r="4" fill="#d62728" stroke="none" stroke-width="0"/>
+<title>ghr_off: BENCH_MAX_CYCLES=750000000, value=89.8897</title>
+<text x="798.35" y="108.02" text-anchor="middle" font-size="10" fill="#d62728">89.890</text>
+<circle cx="830.00" cy="118.02" r="4" fill="#d62728" stroke="none" stroke-width="0"/>
+<title>ghr_off: BENCH_MAX_CYCLES=1000000000, value=89.8897</title>
+<text x="830.00" y="108.02" text-anchor="middle" font-size="10" fill="#d62728">89.890</text>
+<rect x="690" y="68" width="14" height="14" fill="#d62728" stroke="none" stroke-width="0"/>
+<text x="710" y="80" font-size="14">ghr_off</text>
+<polyline fill="none" stroke="#2ca02c" stroke-width="2" stroke-dasharray="8 5" points="70.00,118.70 323.33,118.70 500.41,118.70 576.67,118.70 652.93,118.70 753.74,118.70 798.35,118.70 830.00,118.70"/>
+<circle cx="70.00" cy="118.70" r="4" fill="white" stroke="#2ca02c" stroke-width="2"/>
+<title>ghr_on: BENCH_MAX_CYCLES=1000000, value=89.7470</title>
+<text x="70.00" y="134.70" text-anchor="middle" font-size="10" fill="#2ca02c">89.747</text>
+<circle cx="323.33" cy="118.70" r="4" fill="white" stroke="#2ca02c" stroke-width="2"/>
+<title>ghr_on: BENCH_MAX_CYCLES=10000000, value=89.7470</title>
+<text x="323.33" y="134.70" text-anchor="middle" font-size="10" fill="#2ca02c">89.747</text>
+<circle cx="500.41" cy="118.70" r="4" fill="white" stroke="#2ca02c" stroke-width="2"/>
+<title>ghr_on: BENCH_MAX_CYCLES=50000000, value=89.7470</title>
+<text x="500.41" y="134.70" text-anchor="middle" font-size="10" fill="#2ca02c">89.747</text>
+<circle cx="576.67" cy="118.70" r="4" fill="white" stroke="#2ca02c" stroke-width="2"/>
+<title>ghr_on: BENCH_MAX_CYCLES=100000000, value=89.7470</title>
+<text x="576.67" y="134.70" text-anchor="middle" font-size="10" fill="#2ca02c">89.747</text>
+<circle cx="652.93" cy="118.70" r="4" fill="white" stroke="#2ca02c" stroke-width="2"/>
+<title>ghr_on: BENCH_MAX_CYCLES=200000000, value=89.7470</title>
+<text x="652.93" y="134.70" text-anchor="middle" font-size="10" fill="#2ca02c">89.747</text>
+<circle cx="753.74" cy="118.70" r="4" fill="white" stroke="#2ca02c" stroke-width="2"/>
+<title>ghr_on: BENCH_MAX_CYCLES=500000000, value=89.7470</title>
+<text x="753.74" y="134.70" text-anchor="middle" font-size="10" fill="#2ca02c">89.747</text>
+<circle cx="798.35" cy="118.70" r="4" fill="white" stroke="#2ca02c" stroke-width="2"/>
+<title>ghr_on: BENCH_MAX_CYCLES=750000000, value=89.7470</title>
+<text x="798.35" y="134.70" text-anchor="middle" font-size="10" fill="#2ca02c">89.747</text>
+<circle cx="830.00" cy="118.70" r="4" fill="white" stroke="#2ca02c" stroke-width="2"/>
+<title>ghr_on: BENCH_MAX_CYCLES=1000000000, value=89.7470</title>
+<text x="830.00" y="134.70" text-anchor="middle" font-size="10" fill="#2ca02c">89.747</text>
+<rect x="690" y="90" width="14" height="14" fill="white" stroke="#2ca02c" stroke-width="2"/>
+<text x="710" y="102" font-size="14">ghr_on</text>
+</svg>

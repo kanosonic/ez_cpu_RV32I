@@ -1,7 +1,8 @@
 `include "define.v"
 module data_ram #(
         parameter BIT_WIDTH = 32,
-        parameter ADDR_WIDTH = 32
+        parameter ADDR_WIDTH = 32,
+        parameter MEM_BYTES = 16384
     ) (
         input clk,
         input rstn,
@@ -13,13 +14,13 @@ module data_ram #(
         output reg [BIT_WIDTH - 1:0] r_Data
 
     );
-    reg [7:0] rom_Data [0:4096];	//4KB
+    reg [7:0] rom_Data [0:MEM_BYTES-1];
 
     //Write
     integer i;
     always @(posedge clk) begin
         if(!rstn) begin
-            for(i = 0; i <= 4096; i = i + 1) begin
+            for(i = 0; i < MEM_BYTES; i = i + 1) begin
                 rom_Data[i] <= 'd0;
             end
         end
